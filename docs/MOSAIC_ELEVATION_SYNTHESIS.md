@@ -56,7 +56,7 @@ Action: define one schema for every promoted change: preconditions, transformati
 
 **B. Promotion gate as a verification cascade with cost accounting.**
 Evidence: `mosaic-omega` verifier portfolio (choose the smallest evidence set meeting a confidence/cost bound) and residual verification graph (only invalidated obligations rerun); chimera's `candidate_promotion_gate` and coverage collector.
-Action: order checks cheap → deep, stop at the first decisive failure, record cost per stage, and rerun only the dependency cone of a change. Fix the failing promotion-gate test first.
+Action: order checks cheap → deep, stop at the first decisive failure, record cost per stage, and rerun only the dependency cone of a change. Verify the promotion gate on real inputs first (see §7).
 
 **C. Counterexamples as data, with a mutate-and-revalidate loop.**
 Evidence: the page's v11 → v12 loop. In code, counterexample handling is thin: `counterexample` appears in only 14 `.py` hits in `mosaic-omega` and 13 in chimera.
@@ -103,7 +103,7 @@ Use each archive for the part it does best:
 Roadmap:
 
 1. **Schema**: one capability record (section 4A) for every promoted change.
-2. **Gate**: promotion = cascade pass + counterexample replay + local re-verification. Fix the failing promotion-gate test first.
+2. **Gate**: promotion = cascade pass + counterexample replay + local re-verification. Verify the promotion gate on real inputs first (see §7).
 3. **Memory and routing**: store successes, failures and counterexamples; look up before generating (4C, 4D).
 4. **Ledger**: record cost, latency, CRR and OAR per route. Do this before building any compilation tier.
 5. **Compile tier**: only where the ledger shows sustained reuse (4G).
