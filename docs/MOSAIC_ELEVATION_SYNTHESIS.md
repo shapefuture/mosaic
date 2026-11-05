@@ -22,7 +22,8 @@ PATH=<venv>/bin:$PATH PYTHONPATH=. python -m pytest -q -p no:cacheprovider tests
 ```
 
 Without the dev extras and with the venv not on PATH, chimera gives 748 passed, 11 failed, 12 skipped. This earlier result is the one reported in §2 and §3.
-- Not run: network-dependent benchmarks, formal backends (Lean, Dafny, Verus, Z3, Frama-C), Docker/bubblewrap sandboxes, the self-reported gauntlet JSONs.
+
+- Not run: network-dependent benchmarks, formal backends (Lean, Dafny, Verus, Z3, Frama-C), Docker/bubblewrap sandboxes, the self-reported gauntlet JSONs (later re-run in §7).
 
 ## 1. What "MOSAIC level" means
 
