@@ -2,9 +2,26 @@
 
 ## Scope and method
 
-- Input: `1394908f-mosaic.html` (MOSAIC Ω landing page) and the 8 zip archives in the repository root.
+- Input: `1394908f-mosaic.html` (MOSAIC Ω landing page) and the 8 zip archives in the repository root. The landing page was supplied as an upload and is **not committed to this repository**. Sections that cite it (§1, §4C/4D/4G, §5) cannot be verified from the repository alone. Commit it, or treat those sections as referencing an out-of-band input.
 - Extracted each archive into a scratch directory (not committed), initialised a throwaway git snapshot in each, and indexed it with GitNexus 1.6.12 (`gitnexus analyze --index-only`). Cross-checked concepts with ripgrep 14.1.0.
 - Ran the test suites that could be run locally (pytest 9.2.0 in a venv).
+
+### Reproduction
+
+Environment: Python 3.13.18, Linux 6.18.44-fc-v236. Dependencies installed into a venv with `pip install pytest click 'httpx[http2]' pydantic rich cryptography hypothesis pyyaml gcf-python` for chimera, and `pytest-cov pytest-xdist pytest-testmon coverage` for the declared dev extras. Archives extracted to a scratch directory, not into the repository.
+
+```bash
+# mosaic-omega-7.0.0 (extracted to <scratch>/zips/mosaic-omega-7.0.0/source)
+cd <scratch>/zips/mosaic-omega-7.0.0/source
+PYTHONPATH=src python -m pytest -q -p no:cacheprovider tests        # 145 passed
+
+# chimera_code_latest_20260813 (extracted to <scratch>/zips/chimera_code_latest_20260813/chimera)
+cd <scratch>/zips/chimera_code_latest_20260813/chimera
+PATH=<venv>/bin:$PATH PYTHONPATH=. python -m pytest -q -p no:cacheprovider tests
+# 758 passed, 1 failed, 12 skipped with dev extras (the 1 failure is the zombie-process case in §7)
+```
+
+Without the dev extras and with the venv not on PATH, chimera gives 748 passed, 11 failed, 12 skipped. This earlier result is the one reported in §2 and §3.
 - Not run: network-dependent benchmarks, formal backends (Lean, Dafny, Verus, Z3, Frama-C), Docker/bubblewrap sandboxes, the self-reported gauntlet JSONs.
 
 ## 1. What "MOSAIC level" means
@@ -31,10 +48,12 @@ The landing page defines the target. Its claims are labelled "illustrative" in t
 
 Two observations about the archives themselves:
 
-- `mosaic-omega` has version drift: the archive is named 7.0.0, `VERSION` says `6.0.1`, and the source manifest says `5.0.0`. A single version source would remove this.
+- `mosaic-omega` has version drift, checked against the extracted files: the archive is named `mosaic-omega-7.0.0.zip`, `source/pyproject.toml` says `version = "7.0.0"`, `source/VERSION` says `6.0.1`, and the only source manifest in `source/` is `source/SOURCE_MANIFEST_5.0.0.json`. A single version source would remove this.
 - `chimera` contains no "mosaic" naming in its original archive. Its concepts overlap (evidence gating, verification, sandboxing, archiving unused surfaces), but it is a separately named project at a different version. Whether it is a successor to MOSAIC is a question for the owner; the files alone do not establish it.
 
 ## 3. Test results (first pass; chimera superseded by §7)
+
+The chimera promotion-gate test listed below passes once the declared dev extras are installed. §7 has the current root-cause analysis.
 
 - **mosaic-omega**: all 145 tests pass. The gauntlet JSON (`residual_savings_ratio` 0.989, `all_checks_passed: true`) was **not** re-run; treat it as self-reported.
 - **chimera**: 11 failures, all in test-harness or environment-sensitive areas:
